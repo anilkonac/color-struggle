@@ -8,16 +8,16 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-var colorImageMap map[color.RGBA]*ebiten.Image
+var emptyImage = ebiten.NewImage(1, 1)
 
 func init() {
-	colorImageMap = make(map[color.RGBA]*ebiten.Image)
+	emptyImage.Fill(color.White)
 }
 
 type tile struct {
 	posRow, posCol uint8
 	color          color.RGBA
-	image          *ebiten.Image
+	drawOpt        ebiten.DrawImageOptions
 }
 
 func newTile(posRow, posCol uint8, color color.RGBA) *tile {
@@ -27,16 +27,12 @@ func newTile(posRow, posCol uint8, color color.RGBA) *tile {
 		color:  color,
 	}
 
-	// Assign/create color image
-	if img, ok := colorImageMap[color]; ok {
-		tile.image = img
-	} else {
-		// image := ebiten.NewImage(1, 1)
-		image := ebiten.NewImage(tileLength-1, tileLength-1)
-		image.Fill(color)
-		colorImageMap[color] = image
-		tile.image = image
-	}
+	// Set geometry matrix
+	tile.drawOpt.GeoM.Scale(tileLength-1, tileLength-1)
+	tile.drawOpt.GeoM.Translate(float64(posCol)*tileLength, float64(posRow)*tileLength)
+
+	// Set color matrix
+	tile.drawOpt.ColorM.ScaleWithColor(color)
 
 	return tile
 

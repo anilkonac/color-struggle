@@ -43,14 +43,10 @@ func (g *game) Update() error {
 func (g *game) Draw(screen *ebiten.Image) {
 	screen.Fill(color.Black)
 
-	var opt ebiten.DrawImageOptions
 	for iRow := uint8(0); iRow < numRows; iRow++ {
 		for iCol := uint8(0); iCol < numCol; iCol++ {
 			curTile := &g.tiles[iRow][iCol]
-			opt.GeoM.Reset()
-			// opt.GeoM.Scale(tileLength-1, tileLength-1)
-			opt.GeoM.Translate(float64(iCol)*tileLength, float64(iRow)*tileLength)
-			screen.DrawImage(curTile.image, &opt)
+			screen.DrawImage(emptyImage, &curTile.drawOpt)
 		}
 	}
 
