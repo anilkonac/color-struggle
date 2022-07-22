@@ -1,33 +1,35 @@
+// Copyright 2022 Anıl Konaç
+
 package main
 
 import (
+	"fmt"
 	"image/color"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"golang.org/x/image/colornames"
 )
 
 const (
 	screenWidth  = 576
 	screenHeight = 720
-	tileLength   = 4
+	tileLength   = 24
 	numRows      = screenHeight / tileLength
 	numCol       = screenWidth / tileLength
 )
 
-var emptyImage = ebiten.NewImage(1, 1)
-
 type game struct {
-	tiles [numRows][numCol]color.RGBA
+	tiles [numRows][numCol]tile
 }
 
 func NewGame() *game {
 	game := new(game)
 
-	for iRow := uint16(0); iRow < numRows; iRow++ {
-		for iCol := uint16(0); iCol < numCol; iCol++ {
-			game.tiles[iRow][iCol] = colornames.Gray
+	for iRow := uint8(0); iRow < numRows; iRow++ {
+		for iCol := uint8(0); iCol < numCol; iCol++ {
+			game.tiles[iRow][iCol] = *newTile(iRow, iCol, colornames.Gray)
 		}
 	}
 
@@ -41,6 +43,19 @@ func (g *game) Update() error {
 func (g *game) Draw(screen *ebiten.Image) {
 	screen.Fill(color.Black)
 
+	var opt ebiten.DrawImageOptions
+	for iRow := uint8(0); iRow < numRows; iRow++ {
+		for iCol := uint8(0); iCol < numCol; iCol++ {
+			curTile := &g.tiles[iRow][iCol]
+			opt.GeoM.Reset()
+			// opt.GeoM.Scale(tileLength-1, tileLength-1)
+			opt.GeoM.Translate(float64(iCol)*tileLength, float64(iRow)*tileLength)
+			screen.DrawImage(curTile.image, &opt)
+		}
+	}
+
+	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %.2f  FPS: %.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS()))
+
 }
 
 func (g *game) Layout(w, h int) (int, int) {
@@ -48,9 +63,11 @@ func (g *game) Layout(w, h int) (int, int) {
 }
 
 func main() {
+	ebiten.SetWindowTitle("Color Struggle")
 	// ebiten.SetWindowResizable(true)
 	ebiten.SetWindowSize(screenWidth, screenHeight)
-	// ebiten.SetFPSMode(ebiten.FPSModeVsyncOffMaximum)
+	ebiten.SetFPSMode(ebiten.FPSModeVsyncOffMaximum)
+	// ebiten.SetFPSMode(ebiten.FPSModeVsyncOffMinimum)
 	if err := ebiten.RunGame(NewGame()); err != nil {
 		log.Fatal(err)
 	}
