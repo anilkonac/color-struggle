@@ -45,13 +45,11 @@ func (g *game) Draw(screen *ebiten.Image) {
 
 	for iRow := uint8(0); iRow < numRows; iRow++ {
 		for iCol := uint8(0); iCol < numCol; iCol++ {
-			curTile := &g.tiles[iRow][iCol]
-			screen.DrawImage(emptyImage, &curTile.drawOpt)
+			g.tiles[iRow][iCol].draw(screen)
 		}
 	}
 
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %.2f  FPS: %.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS()))
-
 }
 
 func (g *game) Layout(w, h int) (int, int) {
