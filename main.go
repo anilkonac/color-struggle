@@ -21,11 +21,14 @@ const (
 )
 
 type game struct {
-	tiles [numRows][numCol]tile
+	tiles  [numRows][numCol]tile
+	player player
 }
 
 func NewGame() *game {
-	game := new(game)
+	game := &game{
+		player: *newPlayer(numRows/2, numCol/2, colornames.White),
+	}
 
 	for iRow := uint8(0); iRow < numRows; iRow++ {
 		for iCol := uint8(0); iCol < numCol; iCol++ {
@@ -37,17 +40,22 @@ func NewGame() *game {
 }
 
 func (g *game) Update() error {
+	g.player.update()
 	return nil
 }
 
 func (g *game) Draw(screen *ebiten.Image) {
 	screen.Fill(color.Black)
 
+	// Draw tiles
 	for iRow := uint8(0); iRow < numRows; iRow++ {
 		for iCol := uint8(0); iCol < numCol; iCol++ {
 			g.tiles[iRow][iCol].draw(screen)
 		}
 	}
+
+	// Draw player
+	screen.DrawRectShader(tileLength, tileLength, playerShader, &g.player.drawOpts)
 
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %.2f  FPS: %.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS()))
 }
