@@ -24,19 +24,26 @@ const (
 const (
 	playerStartX   = numRows / 2
 	playerStartY   = numCol / 2
+	targetX        = numCol / 2.0
+	targetY        = 0
 	colorReduction = 10
 )
 
-var gameOver bool
+var (
+	gameOver     bool
+	gameFinished bool
+)
 
 type game struct {
 	tiles  [numRows][numCol]tile
 	player player
+	target target
 }
 
 func NewGame() *game {
 	game := &game{
 		player: *newPlayer(playerStartX, playerStartY, colornames.White),
+		target: *newTarget(targetX, targetY),
 	}
 
 	for iRow := uint8(0); iRow < numRows; iRow++ {
@@ -51,6 +58,7 @@ func NewGame() *game {
 func (g *game) restart() {
 	*g = game{
 		player: *newPlayer(playerStartX, playerStartY, colornames.White),
+		target: *newTarget(targetX, targetY),
 	}
 
 	for iRow := uint8(0); iRow < numRows; iRow++ {
@@ -60,17 +68,20 @@ func (g *game) restart() {
 	}
 
 	gameOver = false
+	gameFinished = false
 }
 
 func (g *game) Update() error {
-	if gameOver {
+	if gameOver || gameFinished {
 		if inpututil.IsKeyJustPressed(ebiten.KeyR) {
 			g.restart()
 		}
 		return nil
 	}
 
-	prevPosX, prevPosY := g.player.posX, g.player.posY
+	g.target.update()
+
+	// prevPosX, prevPosY := g.player.posX, g.player.posY
 	playerMoved := g.player.update()
 	if playerMoved {
 
@@ -85,8 +96,12 @@ func (g *game) Update() error {
 		if g.player.B < colorReduction {
 			reduB = g.player.B
 		}
-		// g.tiles[g.player.posY][g.player.posX].paint(color.RGBA{reduR, reduG, reduB, 1.0})
-		g.tiles[prevPosY][prevPosX].paint(color.RGBA{reduR, reduG, reduB, 1.0})
+		g.tiles[g.player.posY][g.player.posX].paint(color.RGBA{reduR, reduG, reduB, 1.0})
+		// g.tiles[prevPosY][prevPosX].paint(color.RGBA{reduR, reduG, reduB, 1.0})
+
+		if g.player.posX == g.target.posX && g.player.posY == g.target.posY {
+			gameFinished = true
+		}
 
 		if g.player.R == 0 && g.player.G == 0 && g.player.B == 0 {
 			gameOver = true
@@ -106,12 +121,20 @@ func (g *game) Draw(screen *ebiten.Image) {
 	}
 
 	// Draw player
-	screen.DrawRectShader(tileLength, tileLength, playerShader, &g.player.drawOpts)
+	screen.DrawRectShader(tileLength, tileLength, shaderPlayer, &g.player.drawOpts)
+
+	// Draw target
+	screen.DrawRectShader(tileLength, tileLength, shaderTarget, &g.target.drawOpts)
 
 	// Draw GameOver image
 	if gameOver {
 		screen.DrawImage(imageTextGameOver, &drawOptionsTextGameOver)
 		screen.DrawImage(imageTextRestart, &drawOptionsRestart)
+	}
+	if gameFinished {
+		screen.DrawImage(imageTextSuccess, &drawOptionsTextSuccess)
+		screen.DrawImage(imageTextRestart, &drawOptionsRestart)
+
 	}
 
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %.2f  FPS: %.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS()))

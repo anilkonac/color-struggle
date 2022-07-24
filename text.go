@@ -15,6 +15,7 @@ const (
 	fontSizeGameOver = 96
 	fontSizeRestart  = 32
 	textGameOver     = "Game Over!"
+	textGameSuccess  = "You Win!"
 	textGameRestart  = "Press R to restart"
 )
 
@@ -22,8 +23,10 @@ var (
 	//go:embed Moonlight-Regular.ttf
 	bytesFontMoonlight      []byte
 	imageTextGameOver       *ebiten.Image
+	imageTextSuccess        *ebiten.Image
 	imageTextRestart        *ebiten.Image
 	drawOptionsTextGameOver ebiten.DrawImageOptions
+	drawOptionsTextSuccess  ebiten.DrawImageOptions
 	drawOptionsRestart      ebiten.DrawImageOptions
 )
 
@@ -45,8 +48,9 @@ func init() {
 	})
 	panicErr(err)
 
-	// Prepare Game Over Text
+	// Prepare Text Images
 	imageTextGameOver, drawOptionsTextGameOver = prepareTextImage(fontFaceGameOver, textGameOver, color.White, 0, 0)
+	imageTextSuccess, drawOptionsTextSuccess = prepareTextImage(fontFaceGameOver, textGameSuccess, color.White, 0, 0)
 	imageTextRestart, drawOptionsRestart = prepareTextImage(fontFaceRestart, textGameRestart, color.White, 0, 64)
 }
 

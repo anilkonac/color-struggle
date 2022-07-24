@@ -15,17 +15,15 @@ const (
 
 var (
 	timePassedSec float32
-	playerShader  *ebiten.Shader
+	shaderPlayer  *ebiten.Shader
 	//go:embed player.kage.go
-	shaderBytes []byte
+	bytesShaderPlayer []byte
 )
 
 func init() {
 	var err error
-	playerShader, err = ebiten.NewShader(shaderBytes)
-	if err != nil {
-		panic(err)
-	}
+	shaderPlayer, err = ebiten.NewShader(bytesShaderPlayer)
+	panicErr(err)
 }
 
 type player struct {
@@ -103,7 +101,9 @@ func (p *player) update() bool {
 		} else {
 			p.B = 0.0
 		}
-		p.drawOpts.Uniforms["Color"] = []float32{float32(p.R) / 255.0, float32(p.G) / 255.0, float32(p.B) / 255.0, float32(p.A) / 255.0}
+		normR, normG, normB := float32(p.R)/255.0, float32(p.G)/255.0, float32(p.B)/255.0
+		p.drawOpts.Uniforms["Color"] = []float32{normR, normG, normB, float32(p.A) / 255.0}
+		p.drawOpts.Uniforms["BreathSpeed"] = normR*0.5 + normB*0.5 + normG*0.5
 
 		return true
 	}
