@@ -5,6 +5,7 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 const (
@@ -57,4 +58,34 @@ func (p *player) update() {
 	timePassedSec += 1.0 / float32(ebiten.MaxTPS())
 	p.drawOpts.Uniforms["Time"] = timePassedSec
 	// fmt.Printf("timePassedSec: %v\n", timePassedSec)
+
+	pressedUp := inpututil.IsKeyJustPressed(ebiten.KeyW) || inpututil.IsKeyJustPressed(ebiten.KeyUp)
+	pressedDown := inpututil.IsKeyJustPressed(ebiten.KeyS) || inpututil.IsKeyJustPressed(ebiten.KeyDown)
+	pressedLeft := inpututil.IsKeyJustPressed(ebiten.KeyA) || inpututil.IsKeyJustPressed(ebiten.KeyLeft)
+	pressedRight := inpututil.IsKeyJustPressed(ebiten.KeyD) || inpututil.IsKeyJustPressed(ebiten.KeyRight)
+
+	if pressedUp {
+		if p.posY != 0 {
+			p.posY -= 1
+		}
+	} else if pressedDown {
+		p.posY += 1
+		if p.posY > numRows-1 {
+			p.posY = numRows - 1
+		}
+	} else if pressedRight {
+		p.posX += 1
+		if p.posX > numCol-1 {
+			p.posX = numCol - 1
+		}
+	} else if pressedLeft {
+		if p.posX != 0 {
+			p.posX -= 1
+		}
+	}
+
+	if pressedUp || pressedDown || pressedLeft || pressedRight {
+		p.drawOpts.GeoM.Reset()
+		p.drawOpts.GeoM.Translate(float64(p.posX)*tileLength, float64(p.posY)*tileLength)
+	}
 }
