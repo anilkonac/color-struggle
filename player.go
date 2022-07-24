@@ -54,7 +54,8 @@ func newPlayer(posX, posY uint8, color color.RGBA) *player {
 	return player
 }
 
-func (p *player) update() {
+// Returns true if player moves
+func (p *player) update() bool {
 	timePassedSec += 1.0 / float32(ebiten.MaxTPS())
 	p.drawOpts.Uniforms["Time"] = timePassedSec
 	// fmt.Printf("timePassedSec: %v\n", timePassedSec)
@@ -69,14 +70,12 @@ func (p *player) update() {
 			p.posY -= 1
 		}
 	} else if pressedDown {
-		p.posY += 1
-		if p.posY > numRows-1 {
-			p.posY = numRows - 1
+		if p.posY != numRows-1 {
+			p.posY += 1
 		}
 	} else if pressedRight {
-		p.posX += 1
-		if p.posX > numCol-1 {
-			p.posX = numCol - 1
+		if p.posX != numCol-1 {
+			p.posX += 1
 		}
 	} else if pressedLeft {
 		if p.posX != 0 {
@@ -87,5 +86,8 @@ func (p *player) update() {
 	if pressedUp || pressedDown || pressedLeft || pressedRight {
 		p.drawOpts.GeoM.Reset()
 		p.drawOpts.GeoM.Translate(float64(p.posX)*tileLength, float64(p.posY)*tileLength)
+		return true
 	}
+
+	return false
 }

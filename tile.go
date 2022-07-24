@@ -16,7 +16,7 @@ func init() {
 
 type tile struct {
 	// posRow, posCol uint8
-	// color          color.RGBA
+	color   color.RGBA
 	drawOpt ebiten.DrawImageOptions
 }
 
@@ -24,7 +24,7 @@ func newTile(posRow, posCol uint8, color color.RGBA) *tile {
 	tile := &tile{
 		// posRow: posRow,
 		// posCol: posCol,
-		// color:  color,
+		color: color,
 	}
 
 	// Set geometry matrix
@@ -37,6 +37,27 @@ func newTile(posRow, posCol uint8, color color.RGBA) *tile {
 	return tile
 }
 
-func (t tile) draw(dst *ebiten.Image) {
+func (t *tile) draw(dst *ebiten.Image) {
 	dst.DrawImage(whiteImage, &t.drawOpt)
+}
+
+func (t *tile) paint(clr color.RGBA) {
+	if (255 - t.color.R) >= clr.R {
+		t.color.R += clr.R
+	} else {
+		t.color.R = 255
+	}
+	if (255 - t.color.G) >= clr.G {
+		t.color.G += clr.G
+	} else {
+		t.color.G = 255
+	}
+	if (255 - t.color.B) >= clr.B {
+		t.color.B += clr.B
+	} else {
+		t.color.B = 255
+	}
+	// t.color.A += clr.A
+	t.drawOpt.ColorM.Reset()
+	t.drawOpt.ColorM.ScaleWithColor(t.color)
 }

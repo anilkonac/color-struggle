@@ -13,11 +13,12 @@ import (
 )
 
 const (
-	screenWidth  = 576
-	screenHeight = 720
-	tileLength   = 24
-	numRows      = screenHeight / tileLength
-	numCol       = screenWidth / tileLength
+	screenWidth    = 576
+	screenHeight   = 720
+	tileLength     = 24
+	numRows        = screenHeight / tileLength
+	numCol         = screenWidth / tileLength
+	colorReduction = 50
 )
 
 type game struct {
@@ -32,7 +33,7 @@ func NewGame() *game {
 
 	for iRow := uint8(0); iRow < numRows; iRow++ {
 		for iCol := uint8(0); iCol < numCol; iCol++ {
-			game.tiles[iRow][iCol] = *newTile(iRow, iCol, colornames.Gray)
+			game.tiles[iRow][iCol] = *newTile(iRow, iCol, colornames.Black)
 		}
 	}
 
@@ -40,12 +41,18 @@ func NewGame() *game {
 }
 
 func (g *game) Update() error {
-	g.player.update()
+	prevPosX, prevPosY := g.player.posX, g.player.posY
+	playerMoved := g.player.update()
+	if playerMoved {
+		// Paint player's tile
+		// g.tiles[g.player.posY][g.player.posX].paint(color.RGBA{colorReduction, colorReduction, colorReduction, 1.0})
+		g.tiles[prevPosY][prevPosX].paint(color.RGBA{colorReduction, colorReduction, colorReduction, 1.0})
+	}
 	return nil
 }
 
 func (g *game) Draw(screen *ebiten.Image) {
-	screen.Fill(color.Black)
+	screen.Fill(colornames.Gray)
 
 	// Draw tiles
 	for iRow := uint8(0); iRow < numRows; iRow++ {
