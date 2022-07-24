@@ -9,16 +9,22 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"golang.org/x/image/colornames"
 )
 
 const (
-	screenWidth    = 576
-	screenHeight   = 720
-	tileLength     = 24
-	numRows        = screenHeight / tileLength
-	numCol         = screenWidth / tileLength
-	colorReduction = 50
+	screenWidth  = 576
+	screenHeight = 720
+	tileLength   = 24
+	numRows      = screenHeight / tileLength
+	numCol       = screenWidth / tileLength
+)
+
+const (
+	playerStartX   = numRows / 2
+	playerStartY   = numCol / 2
+	colorReduction = 10
 )
 
 var gameOver bool
@@ -30,7 +36,7 @@ type game struct {
 
 func NewGame() *game {
 	game := &game{
-		player: *newPlayer(numRows/2, numCol/2, colornames.White),
+		player: *newPlayer(playerStartX, playerStartY, colornames.White),
 	}
 
 	for iRow := uint8(0); iRow < numRows; iRow++ {
@@ -42,8 +48,25 @@ func NewGame() *game {
 	return game
 }
 
+func (g *game) restart() {
+	*g = game{
+		player: *newPlayer(playerStartX, playerStartY, colornames.White),
+	}
+
+	for iRow := uint8(0); iRow < numRows; iRow++ {
+		for iCol := uint8(0); iCol < numCol; iCol++ {
+			g.tiles[iRow][iCol] = *newTile(iRow, iCol, colornames.Black)
+		}
+	}
+
+	gameOver = false
+}
+
 func (g *game) Update() error {
 	if gameOver {
+		if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+			g.restart()
+		}
 		return nil
 	}
 
