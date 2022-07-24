@@ -8,6 +8,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+const paintMultiplier = 3
+
 var whiteImage = ebiten.NewImage(1, 1)
 
 func init() {
@@ -42,18 +44,21 @@ func (t *tile) draw(dst *ebiten.Image) {
 }
 
 func (t *tile) paint(clr color.RGBA) {
-	if (255 - t.color.R) >= clr.R {
-		t.color.R += clr.R
+	var paintR uint8 = clr.R * paintMultiplier
+	var paintG uint8 = clr.R * paintMultiplier
+	var paintB uint8 = clr.R * paintMultiplier
+	if (255 - t.color.R) >= paintR {
+		t.color.R += paintR
 	} else {
 		t.color.R = 255
 	}
-	if (255 - t.color.G) >= clr.G {
-		t.color.G += clr.G
+	if (255 - t.color.G) >= paintG {
+		t.color.G += paintG
 	} else {
 		t.color.G = 255
 	}
-	if (255 - t.color.B) >= clr.B {
-		t.color.B += clr.B
+	if (255 - t.color.B) >= paintB {
+		t.color.B += paintB
 	} else {
 		t.color.B = 255
 	}

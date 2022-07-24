@@ -21,6 +21,8 @@ const (
 	colorReduction = 50
 )
 
+var gameOver bool
+
 type game struct {
 	tiles  [numRows][numCol]tile
 	player player
@@ -41,12 +43,31 @@ func NewGame() *game {
 }
 
 func (g *game) Update() error {
+	if gameOver {
+		return nil
+	}
+
 	prevPosX, prevPosY := g.player.posX, g.player.posY
 	playerMoved := g.player.update()
 	if playerMoved {
+
 		// Paint player's tile
-		// g.tiles[g.player.posY][g.player.posX].paint(color.RGBA{colorReduction, colorReduction, colorReduction, 1.0})
-		g.tiles[prevPosY][prevPosX].paint(color.RGBA{colorReduction, colorReduction, colorReduction, 1.0})
+		var reduR, reduG, reduB uint8 = colorReduction, colorReduction, colorReduction
+		if g.player.R < colorReduction {
+			reduR = g.player.R
+		}
+		if g.player.G < colorReduction {
+			reduG = g.player.G
+		}
+		if g.player.B < colorReduction {
+			reduB = g.player.B
+		}
+		// g.tiles[g.player.posY][g.player.posX].paint(color.RGBA{reduR, reduG, reduB, 1.0})
+		g.tiles[prevPosY][prevPosX].paint(color.RGBA{reduR, reduG, reduB, 1.0})
+
+		if g.player.R == 0 && g.player.G == 0 && g.player.B == 0 {
+			gameOver = true
+		}
 	}
 	return nil
 }
@@ -63,6 +84,12 @@ func (g *game) Draw(screen *ebiten.Image) {
 
 	// Draw player
 	screen.DrawRectShader(tileLength, tileLength, playerShader, &g.player.drawOpts)
+
+	// Draw GameOver image
+	if gameOver {
+		screen.DrawImage(imageTextGameOver, &drawOptionsTextGameOver)
+		screen.DrawImage(imageTextRestart, &drawOptionsRestart)
+	}
 
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %.2f  FPS: %.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS()))
 }

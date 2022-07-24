@@ -44,7 +44,7 @@ func newPlayer(posX, posY uint8, color color.RGBA) *player {
 				"TileRadius":  float32(tileLength / 2.0),
 				"Time":        float32(timePassedSec),
 				"BreathSpeed": float32(breadthSpeedMax),
-				"Color":       []float32{float32(color.R), float32(color.G), float32(color.B), float32(color.A)},
+				"Color":       []float32{float32(color.R) / 255.0, float32(color.G) / 255.0, float32(color.B) / 255.0, float32(color.A) / 255.0},
 			},
 		},
 	}
@@ -86,6 +86,25 @@ func (p *player) update() bool {
 	if pressedUp || pressedDown || pressedLeft || pressedRight {
 		p.drawOpts.GeoM.Reset()
 		p.drawOpts.GeoM.Translate(float64(p.posX)*tileLength, float64(p.posY)*tileLength)
+
+		// Reduce player color
+		if p.R >= colorReduction {
+			p.R -= colorReduction
+		} else {
+			p.R = 0.0
+		}
+		if p.G >= colorReduction {
+			p.G -= colorReduction
+		} else {
+			p.G = 0.0
+		}
+		if p.B >= colorReduction {
+			p.B -= colorReduction
+		} else {
+			p.B = 0.0
+		}
+		p.drawOpts.Uniforms["Color"] = []float32{float32(p.R) / 255.0, float32(p.G) / 255.0, float32(p.B) / 255.0, float32(p.A) / 255.0}
+
 		return true
 	}
 
