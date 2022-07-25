@@ -3,14 +3,12 @@
 package main
 
 import (
-	"fmt"
 	"image/color"
 	"log"
 	"math/rand"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"golang.org/x/image/colornames"
 )
@@ -212,7 +210,7 @@ func (g *game) Draw(screen *ebiten.Image) {
 
 	}
 
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %.2f  FPS: %.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS()))
+	// ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %.2f  FPS: %.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS()))
 }
 
 func (g *game) Layout(w, h int) (int, int) {
@@ -223,7 +221,7 @@ func main() {
 	ebiten.SetWindowTitle("Color Struggle")
 	// ebiten.SetWindowResizable(true)
 	ebiten.SetWindowSize(screenWidth, screenHeight)
-	ebiten.SetFPSMode(ebiten.FPSModeVsyncOffMaximum)
+	// ebiten.SetFPSMode(ebiten.FPSModeVsyncOffMaximum)
 	// ebiten.SetFPSMode(ebiten.FPSModeVsyncOffMinimum)
 	if err := ebiten.RunGame(NewGame()); err != nil {
 		log.Fatal(err)
