@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	//go:embed target.kage.go
+	//go:embed shader/target.kage.go
 	bytesShaderTarget []byte
 	shaderTarget      *ebiten.Shader
 )

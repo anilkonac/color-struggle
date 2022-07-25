@@ -7,6 +7,7 @@ import (
 	"image/color"
 	"log"
 	"math/rand"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -25,6 +26,7 @@ const (
 const (
 	minDistPlayerTarget = numRows
 	colorReduction      = 10
+	numSources          = 6
 )
 
 var (
@@ -32,10 +34,15 @@ var (
 	gameFinished bool
 )
 
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
 type game struct {
-	tiles  [numRows][numCol]tile
-	player player
-	target target
+	tiles   [numRows][numCol]tile
+	player  player
+	target  target
+	sources [numSources]source
 }
 
 func NewGame() *game {
@@ -55,11 +62,14 @@ func NewGame() *game {
 		target: *newTarget(targetX, targetY),
 	}
 
+	// Create tiles
 	for iRow := uint8(0); iRow < numRows; iRow++ {
 		for iCol := uint8(0); iCol < numCol; iCol++ {
 			game.tiles[iRow][iCol] = *newTile(iRow, iCol, colornames.Black)
 		}
 	}
+
+	createColorSources(playerX, playerY, &game.sources)
 
 	return game
 }
@@ -88,8 +98,32 @@ func (g *game) restart() {
 		}
 	}
 
+	createColorSources(playerX, playerY, &g.sources)
+
 	gameOver = false
 	gameFinished = false
+}
+
+func createColorSources(playerX, playerY int, sources *[numSources]source) {
+	// Create color sources
+	for iSource := 0; iSource < numSources; iSource++ {
+		sourceColorIndex := rand.Intn(3)
+		var sourceColor color.RGBA
+		switch sourceColorIndex {
+		case 0:
+			sourceColor = colornames.Red
+		case 1:
+			sourceColor = colornames.Green
+		case 2:
+			sourceColor = colornames.Blue
+		}
+		sourceX, sourceY := playerX, playerY
+		for sourceX == playerX && sourceY == playerY {
+			sourceX = rand.Intn(numRows)
+			sourceY = rand.Intn(numCol)
+			sources[iSource] = *newSource(sourceX, sourceY, sourceColor)
+		}
+	}
 }
 
 func (g *game) Update() error {
@@ -146,6 +180,12 @@ func (g *game) Draw(screen *ebiten.Image) {
 
 	// Draw target
 	screen.DrawRectShader(tileLength, tileLength, shaderTarget, &g.target.drawOpts)
+
+	// Draw color sources
+	for iSource := 0; iSource < numSources; iSource++ {
+		screen.DrawRectShader(tileLength, tileLength, shaderSource, &g.sources[iSource].drawOpt)
+
+	}
 
 	// Draw GameOver image
 	if gameOver {

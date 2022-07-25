@@ -16,7 +16,7 @@ const (
 var (
 	timePassedSec float32
 	shaderPlayer  *ebiten.Shader
-	//go:embed player.kage.go
+	//go:embed shader/player.kage.go
 	bytesShaderPlayer []byte
 )
 
