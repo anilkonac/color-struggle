@@ -26,7 +26,7 @@ const (
 const (
 	minDistPlayerTarget = numRows
 	colorReduction      = 10
-	numSources          = 6
+	numSources          = 3
 )
 
 var (
@@ -127,10 +127,12 @@ func createColorSources(playerX, playerY int, sources *[numSources]source) {
 }
 
 func (g *game) Update() error {
+	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+		g.restart()
+		return nil
+	}
+
 	if gameOver || gameFinished {
-		if inpututil.IsKeyJustPressed(ebiten.KeyR) {
-			g.restart()
-		}
 		return nil
 	}
 
@@ -154,6 +156,15 @@ func (g *game) Update() error {
 		g.tiles[g.player.posY][g.player.posX].paint(color.RGBA{reduR, reduG, reduB, 1.0})
 		// g.tiles[prevPosY][prevPosX].paint(color.RGBA{reduR, reduG, reduB, 1.0})
 
+		// Gather color source
+		for iSource := 0; iSource < numSources; iSource++ {
+			source := &g.sources[iSource]
+			if g.player.posX == source.posX && g.player.posY == source.posY {
+				source.eaten = true
+				g.player.gatherColor(source.RGBA)
+			}
+		}
+
 		if g.player.posX == g.target.posX && g.player.posY == g.target.posY {
 			gameFinished = true
 		}
@@ -166,7 +177,7 @@ func (g *game) Update() error {
 }
 
 func (g *game) Draw(screen *ebiten.Image) {
-	screen.Fill(colornames.Gray)
+	screen.Fill(colornames.Darkgray)
 
 	// Draw tiles
 	for iRow := uint8(0); iRow < numRows; iRow++ {
@@ -183,7 +194,10 @@ func (g *game) Draw(screen *ebiten.Image) {
 
 	// Draw color sources
 	for iSource := 0; iSource < numSources; iSource++ {
-		screen.DrawRectShader(tileLength, tileLength, shaderSource, &g.sources[iSource].drawOpt)
+		source := &g.sources[iSource]
+		if !source.eaten {
+			screen.DrawRectShader(tileLength, tileLength, shaderSource, &source.drawOpt)
+		}
 
 	}
 

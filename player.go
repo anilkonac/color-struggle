@@ -110,3 +110,26 @@ func (p *player) update() bool {
 
 	return false
 }
+
+func (p *player) gatherColor(clr color.RGBA) {
+	// Increase player color
+	if 255-p.R > clr.R {
+		p.R += clr.R
+	} else {
+		p.R = 255
+	}
+	if 255-p.G > clr.G {
+		p.G += clr.G
+	} else {
+		p.G = 255
+	}
+	if 255-p.B > clr.B {
+		p.B += clr.B
+	} else {
+		p.B = 255
+	}
+
+	normR, normG, normB := float32(p.R)/255.0, float32(p.G)/255.0, float32(p.B)/255.0
+	p.drawOpts.Uniforms["Color"] = []float32{normR, normG, normB, float32(p.A) / 255.0}
+	p.drawOpts.Uniforms["BreathSpeed"] = normR*0.5 + normB*0.5 + normG*0.5
+}

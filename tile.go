@@ -45,8 +45,8 @@ func (t *tile) draw(dst *ebiten.Image) {
 
 func (t *tile) paint(clr color.RGBA) {
 	var paintR uint8 = clr.R * paintMultiplier
-	var paintG uint8 = clr.R * paintMultiplier
-	var paintB uint8 = clr.R * paintMultiplier
+	var paintG uint8 = clr.G * paintMultiplier
+	var paintB uint8 = clr.B * paintMultiplier
 	if (255 - t.color.R) >= paintR {
 		t.color.R += paintR
 	} else {

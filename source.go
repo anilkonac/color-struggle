@@ -21,11 +21,16 @@ func init() {
 
 type source struct {
 	color.RGBA
-	drawOpt ebiten.DrawRectShaderOptions
+	eaten      bool
+	posX, posY int
+	drawOpt    ebiten.DrawRectShaderOptions
 }
 
 func newSource(x, y int, color color.RGBA) *source {
 	source := &source{
+		posX: x,
+		posY: y,
+		RGBA: color,
 		drawOpt: ebiten.DrawRectShaderOptions{
 			Uniforms: map[string]interface{}{
 				"Radius": float32(tileLength / 4.0),
