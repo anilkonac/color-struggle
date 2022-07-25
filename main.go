@@ -24,7 +24,7 @@ const (
 const (
 	minDistPlayerTarget = numRows
 	colorReduction      = 10
-	numSources          = 3
+	numSources          = 4
 )
 
 var (
@@ -136,7 +136,7 @@ func (g *game) Update() error {
 
 	g.target.update()
 
-	// prevPosX, prevPosY := g.player.posX, g.player.posY
+	prevPosX, prevPosY := g.player.posX, g.player.posY
 	playerMoved := g.player.update()
 	if playerMoved {
 
@@ -151,8 +151,8 @@ func (g *game) Update() error {
 		if g.player.B < colorReduction {
 			reduB = g.player.B
 		}
-		g.tiles[g.player.posY][g.player.posX].paint(color.RGBA{reduR, reduG, reduB, 1.0})
-		// g.tiles[prevPosY][prevPosX].paint(color.RGBA{reduR, reduG, reduB, 1.0})
+		// g.tiles[g.player.posY][g.player.posX].paint(color.RGBA{reduR, reduG, reduB, 1.0})
+		g.tiles[prevPosY][prevPosX].paint(color.RGBA{reduR, reduG, reduB, 1.0})
 
 		// Gather color source
 		for iSource := 0; iSource < numSources; iSource++ {
