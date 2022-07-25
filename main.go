@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"image/color"
 	"log"
+	"math/rand"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -22,11 +23,8 @@ const (
 )
 
 const (
-	playerStartX   = numRows / 2
-	playerStartY   = numCol / 2
-	targetX        = numCol / 2.0
-	targetY        = 0
-	colorReduction = 10
+	minDistPlayerTarget = numRows
+	colorReduction      = 10
 )
 
 var (
@@ -41,8 +39,19 @@ type game struct {
 }
 
 func NewGame() *game {
+	var playerX, playerY, targetX, targetY int
+	var tooNear bool = true
+	for tooNear {
+		playerX = rand.Intn(numCol)
+		playerY = rand.Intn(numRows)
+		targetX = rand.Intn(numCol)
+		targetY = rand.Intn(numRows)
+		tooNear = ((playerX-targetX)*(playerX-targetX) + (playerY-targetY)*(playerY-targetY)) < minDistPlayerTarget*minDistPlayerTarget
+
+	}
+
 	game := &game{
-		player: *newPlayer(playerStartX, playerStartY, colornames.White),
+		player: *newPlayer(playerX, playerY, colornames.White),
 		target: *newTarget(targetX, targetY),
 	}
 
@@ -56,8 +65,20 @@ func NewGame() *game {
 }
 
 func (g *game) restart() {
+
+	var playerX, playerY, targetX, targetY int
+	var tooNear bool = true
+	for tooNear {
+		playerX = rand.Intn(numCol)
+		playerY = rand.Intn(numRows)
+		targetX = rand.Intn(numCol)
+		targetY = rand.Intn(numRows)
+		tooNear = ((playerX-targetX)*(playerX-targetX) + (playerY-targetY)*(playerY-targetY)) < minDistPlayerTarget*minDistPlayerTarget
+
+	}
+
 	*g = game{
-		player: *newPlayer(playerStartX, playerStartY, colornames.White),
+		player: *newPlayer(playerX, playerY, colornames.White),
 		target: *newTarget(targetX, targetY),
 	}
 

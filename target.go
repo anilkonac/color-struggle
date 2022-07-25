@@ -19,11 +19,11 @@ func init() {
 }
 
 type target struct {
-	posX, posY uint8
+	posX, posY int
 	drawOpts   ebiten.DrawRectShaderOptions
 }
 
-func newTarget(posX, posY uint8) *target {
+func newTarget(posX, posY int) *target {
 	target := &target{
 		posX: posX,
 		posY: posY,

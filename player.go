@@ -28,11 +28,11 @@ func init() {
 
 type player struct {
 	color.RGBA
-	posX, posY uint8
+	posX, posY int
 	drawOpts   ebiten.DrawRectShaderOptions
 }
 
-func newPlayer(posX, posY uint8, color color.RGBA) *player {
+func newPlayer(posX, posY int, color color.RGBA) *player {
 	player := &player{
 		posX: posX,
 		posY: posY,
