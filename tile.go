@@ -8,7 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-const paintMultiplier = 3
+const paintMultiplier = 10
 
 var whiteImage = ebiten.NewImage(1, 1)
 
