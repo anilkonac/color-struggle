@@ -3,11 +3,13 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 	"log"
 	"math/rand"
 	"time"
 
+	"github.com/beefsack/go-astar"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"golang.org/x/image/colornames"
@@ -36,8 +38,9 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
+var tiles [numRows][numCol]tile
+
 type game struct {
-	tiles   [numRows][numCol]tile
 	player  player
 	target  target
 	sources [numSources]source
@@ -63,11 +66,12 @@ func NewGame() *game {
 	// Create tiles
 	for iRow := uint8(0); iRow < numRows; iRow++ {
 		for iCol := uint8(0); iCol < numCol; iCol++ {
-			game.tiles[iRow][iCol] = *newTile(iRow, iCol, colornames.Black)
+			tiles[iRow][iCol] = *newTile(iRow, iCol, colornames.Black)
 		}
 	}
 
 	createColorSources(playerX, playerY, &game.sources)
+	fmt.Printf("game.validateMap(): %v\n", game.validateMap())
 
 	return game
 }
@@ -92,11 +96,12 @@ func (g *game) restart() {
 
 	for iRow := uint8(0); iRow < numRows; iRow++ {
 		for iCol := uint8(0); iCol < numCol; iCol++ {
-			g.tiles[iRow][iCol] = *newTile(iRow, iCol, colornames.Black)
+			tiles[iRow][iCol] = *newTile(iRow, iCol, colornames.Black)
 		}
 	}
 
 	createColorSources(playerX, playerY, &g.sources)
+	fmt.Printf("g.validateMap(): %v\n", g.validateMap())
 
 	gameOver = false
 	gameFinished = false
@@ -117,11 +122,25 @@ func createColorSources(playerX, playerY int, sources *[numSources]source) {
 		}
 		sourceX, sourceY := playerX, playerY
 		for sourceX == playerX && sourceY == playerY {
-			sourceX = rand.Intn(numRows)
-			sourceY = rand.Intn(numCol)
+			sourceX = rand.Intn(numCol)
+			sourceY = rand.Intn(numRows)
 			sources[iSource] = *newSource(sourceX, sourceY, sourceColor)
 		}
 	}
+}
+
+func (g *game) validateMap() bool {
+	playerTile := &tiles[g.player.posY][g.player.posX]
+
+	for iSource := 0; iSource < numSources; iSource++ {
+		source := &g.sources[iSource]
+		sourceTile := &tiles[source.posY][source.posX]
+		_, distance, found := astar.Path(playerTile, sourceTile)
+		if found && (distance < 255.0/colorReduction) {
+			return true
+		}
+	}
+	return false
 }
 
 func (g *game) Update() error {
@@ -152,7 +171,7 @@ func (g *game) Update() error {
 			reduB = g.player.B
 		}
 		// g.tiles[g.player.posY][g.player.posX].paint(color.RGBA{reduR, reduG, reduB, 1.0})
-		g.tiles[prevPosY][prevPosX].paint(color.RGBA{reduR, reduG, reduB, 1.0})
+		tiles[prevPosY][prevPosX].paint(color.RGBA{reduR, reduG, reduB, 1.0})
 
 		// Gather color source
 		for iSource := 0; iSource < numSources; iSource++ {
@@ -180,7 +199,7 @@ func (g *game) Draw(screen *ebiten.Image) {
 	// Draw tiles
 	for iRow := uint8(0); iRow < numRows; iRow++ {
 		for iCol := uint8(0); iCol < numCol; iCol++ {
-			g.tiles[iRow][iCol].draw(screen)
+			tiles[iRow][iCol].draw(screen)
 		}
 	}
 

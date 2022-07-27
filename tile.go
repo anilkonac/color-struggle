@@ -5,6 +5,7 @@ package main
 import (
 	"image/color"
 
+	"github.com/beefsack/go-astar"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -17,16 +18,16 @@ func init() {
 }
 
 type tile struct {
-	// posRow, posCol uint8
-	color   color.RGBA
-	drawOpt ebiten.DrawImageOptions
+	posRow, posCol uint8
+	color          color.RGBA
+	drawOpt        ebiten.DrawImageOptions
 }
 
 func newTile(posRow, posCol uint8, color color.RGBA) *tile {
 	tile := &tile{
-		// posRow: posRow,
-		// posCol: posCol,
-		color: color,
+		posRow: posRow,
+		posCol: posCol,
+		color:  color,
 	}
 
 	// Set geometry matrix
@@ -65,4 +66,68 @@ func (t *tile) paint(clr color.RGBA) {
 	// t.color.A += clr.A
 	t.drawOpt.ColorM.Reset()
 	t.drawOpt.ColorM.ScaleWithColor(t.color)
+}
+
+func (t *tile) up() *tile {
+	if t.posRow == 0 {
+		// return nil
+		return t
+	}
+
+	return &tiles[t.posRow-1][t.posCol]
+}
+
+func (t *tile) down() *tile {
+	if t.posRow == numRows-1 {
+		// return nil
+		return t
+	}
+
+	return &tiles[t.posRow+1][t.posCol]
+}
+
+func (t *tile) left() *tile {
+	if t.posCol == 0 {
+		// return nil
+		return t
+	}
+
+	return &tiles[t.posRow][t.posCol-1]
+}
+
+func (t *tile) right() *tile {
+	if t.posCol == numCol-1 {
+		// return nil
+		return t
+	}
+
+	return &tiles[t.posRow][t.posCol+1]
+}
+
+func (t *tile) PathNeighbors() []astar.Pather {
+	return []astar.Pather{
+		t.up(),
+		t.right(),
+		t.down(),
+		t.left(),
+	}
+}
+
+func (t *tile) PathNeighborCost(to astar.Pather) float64 {
+	return 1.0
+}
+
+// PathEstimatedCost uses Manhattan distance to estimate orthogonal distance
+// between non-adjacent nodes.
+func (t *tile) PathEstimatedCost(to astar.Pather) float64 {
+	toT := to.(*tile)
+	absX := float64(toT.posCol) - float64(t.posCol)
+	if absX < 0 {
+		absX = -absX
+	}
+	absY := float64(toT.posRow) - float64(t.posRow)
+	if absY < 0 {
+		absY = -absY
+	}
+	return float64(absX + absY)
 }
