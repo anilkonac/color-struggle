@@ -117,8 +117,8 @@ func createColorSources(playerX, playerY int, sources *[numSources]source) {
 		}
 		sourceX, sourceY := playerX, playerY
 		for sourceX == playerX && sourceY == playerY {
-			sourceX = rand.Intn(numRows)
-			sourceY = rand.Intn(numCol)
+			sourceX = rand.Intn(numCol)
+			sourceY = rand.Intn(numRows)
 			sources[iSource] = *newSource(sourceX, sourceY, sourceColor)
 		}
 	}
